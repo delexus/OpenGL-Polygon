@@ -116,7 +116,7 @@ void OpenGLWindow::render(QPainter *painter)
 
     m_vao.bind();
 
-    glDrawElements(GL_TRIANGLE_FAN, 83, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLE_FAN, 123, GL_UNSIGNED_SHORT, 0);
 
     m_vao.release();
 
@@ -132,18 +132,18 @@ void OpenGLWindow::initialize()
     const GLfloat W = 0.00f;            // round corner rectangle width
     const GLfloat H = 0.00f;           // round corner rectangle height
     const GLfloat rad = 2*PAI/N;
-    const GLfloat radius = 0.05f;       // round corner radius
+    const GLfloat radius = 0.08f;       // round corner radius
     const GLfloat texture_radius = 0.46f;  // texture map radius
     const GLfloat texture_W = 0.0f;
     const GLfloat texture_H = 0.0f;
-    const GLfloat origin_x = 0.0f;  // x > -1-R*cos(rad) && x < 1-R*cos(rad)
-    const GLfloat origin_y = 0.0f;
+    const GLfloat origin_x = -0.5f;  // x > -1-R*cos(rad) && x < 1-R*cos(rad)
+    const GLfloat origin_y = -0.5f;
     const GLfloat scale_factor = 1.0f;
-    GLfloat circle_vertices[N*8+24];
-    GLushort circle_indices[N+3];
+    GLfloat circle_vertices[N*8+344];
+    GLushort circle_indices[N+43];
 
     circle_vertices[0] = origin_x;
-    circle_vertices[1] = origin_y;
+    circle_vertices[1] = origin_y*4/3;
     circle_vertices[2] = 0;
     circle_vertices[3] = scale_factor;
     circle_vertices[4] = 0.5f;          // texture map original coordinate
@@ -152,7 +152,7 @@ void OpenGLWindow::initialize()
     circle_vertices[7] = scale_factor;
 
     circle_vertices[8] = origin_x - W;
-    circle_vertices[9] = origin_y + radius + H;
+    circle_vertices[9] = (origin_y + radius + H)*4/3;
     circle_vertices[10] = 0;
     circle_vertices[11] = scale_factor;
     circle_vertices[12] = 0.5f - texture_W;
@@ -165,8 +165,8 @@ void OpenGLWindow::initialize()
         circle_vertices[i*8+17] = (origin_y + radius*sin(rad*(i+N/4)) + H)*4/3;
         circle_vertices[i*8+18] = 0;
         circle_vertices[i*8+19] = scale_factor;
-        circle_vertices[i*8+20] = texture_radius*cos(rad*(i+N/4))+0.5f - texture_W;
-        circle_vertices[i*8+21] = texture_radius*sin(rad*(i+N/4))+0.5f + texture_H;
+        circle_vertices[i*8+20] = 0.5f + texture_radius*cos(rad*(i+N/4)) - texture_W;
+        circle_vertices[i*8+21] = (0.5f + texture_radius*sin(rad*(i+N/4)) + texture_H)*4/3;
         circle_vertices[i*8+22] = 0;
         circle_vertices[i*8+23] = scale_factor;
     }
@@ -175,39 +175,60 @@ void OpenGLWindow::initialize()
         circle_vertices[i*8+17+2*N] = (origin_y + radius*sin(rad*(i+N/2)) - H)*4/3;
         circle_vertices[i*8+18+2*N] = 0;
         circle_vertices[i*8+19+2*N] = scale_factor;
-        circle_vertices[i*8+20+2*N] = texture_radius*cos(rad*(i+N/2))+0.5f - texture_W;
-        circle_vertices[i*8+21+2*N] = texture_radius*sin(rad*(i+N/2))+0.5f - texture_H;
+        circle_vertices[i*8+20+2*N] = 0.5f + texture_radius*cos(rad*(i+N/2)) - texture_W;
+        circle_vertices[i*8+21+2*N] = (0.5f + texture_radius*sin(rad*(i+N/2)) - texture_H)*4/3;
         circle_vertices[i*8+22+2*N] = 0;
         circle_vertices[i*8+23+2*N] = scale_factor;
     }
-    for (int i=0; i<N/4; i++) {
-        circle_vertices[i*8+16+4*N] = origin_x + radius*cos(rad*(i+N*3/4)) + W;
-        circle_vertices[i*8+17+4*N] = (origin_y + radius*sin(rad*(i+N*3/4)) - H)*4/3;
+    const GLfloat bit = 2*W/20;
+    for (int i=0; i<20; i++) {
+        circle_vertices[i*8+16+4*N] = i*bit - W;
+        circle_vertices[i*8+17+4*N] = (origin_y - radius - H)*4/3;
         circle_vertices[i*8+18+4*N] = 0;
         circle_vertices[i*8+19+4*N] = scale_factor;
-        circle_vertices[i*8+20+4*N] = texture_radius*cos(rad*(i+N*3/4))+0.5f + texture_W;
-        circle_vertices[i*8+21+4*N] = texture_radius*sin(rad*(i+N*3/4))+0.5f - texture_H;
+        circle_vertices[i*8+20+4*N] = i*bit - texture_W;
+        circle_vertices[i*8+21+4*N] = (0.5f + texture_radius - texture_H)*4/3;
         circle_vertices[i*8+22+4*N] = 0;
         circle_vertices[i*8+23+4*N] = scale_factor;
     }
     for (int i=0; i<N/4; i++) {
-        circle_vertices[i*8+16+6*N] = origin_x + radius*cos(rad*i) + W;
-        circle_vertices[i*8+17+6*N] = (origin_y + radius*sin(rad*i) + H)*4/3;
-        circle_vertices[i*8+18+6*N] = 0;
-        circle_vertices[i*8+19+6*N] = scale_factor;
-        circle_vertices[i*8+20+6*N] = texture_radius*cos(rad*i)+0.5f + texture_W;
-        circle_vertices[i*8+21+6*N] = texture_radius*sin(rad*i)+0.5f + texture_H;
-        circle_vertices[i*8+22+6*N] = 0;
-        circle_vertices[i*8+23+6*N] = scale_factor;
+        circle_vertices[i*8+16+4*N+160] = origin_x + radius*cos(rad*(i+N*3/4)) + W;
+        circle_vertices[i*8+17+4*N+160] = (origin_y + radius*sin(rad*(i+N*3/4)) - H)*4/3;
+        circle_vertices[i*8+18+4*N+160] = 0;
+        circle_vertices[i*8+19+4*N+160] = scale_factor;
+        circle_vertices[i*8+20+4*N+160] = 0.5f + texture_radius*cos(rad*(i+N*3/4)) + texture_W;
+        circle_vertices[i*8+21+4*N+160] = 0.5f + texture_radius*sin(rad*(i+N*3/4)) - texture_H;
+        circle_vertices[i*8+22+4*N+160] = 0;
+        circle_vertices[i*8+23+4*N+160] = scale_factor;
     }
-    circle_vertices[8*N+16] = origin_x - W;
-    circle_vertices[8*N+17] = (origin_y + radius + H)*4/3;
-    circle_vertices[8*N+18] = 0;
-    circle_vertices[8*N+19] = scale_factor;
-    circle_vertices[8*N+20] = 0.5f - texture_W;
-    circle_vertices[8*N+21] = 0.5f + texture_radius + texture_H;
-    circle_vertices[8*N+22] = 0;
-    circle_vertices[8*N+23] = scale_factor;
+    for (int i=0; i<N/4; i++) {
+        circle_vertices[i*8+16+6*N+160] = origin_x + radius*cos(rad*i) + W;
+        circle_vertices[i*8+17+6*N+160] = (origin_y + radius*sin(rad*i) + H)*4/3;
+        circle_vertices[i*8+18+6*N+160] = 0;
+        circle_vertices[i*8+19+6*N+160] = scale_factor;
+        circle_vertices[i*8+20+6*N+160] = 0.5f + texture_radius*cos(rad*i) + texture_W;
+        circle_vertices[i*8+21+6*N+160] = 0.5f + texture_radius*sin(rad*i) + texture_H;
+        circle_vertices[i*8+22+6*N+160] = 0;
+        circle_vertices[i*8+23+6*N+160] = scale_factor;
+    }
+    for (int i=0; i<20; i++) {
+        circle_vertices[i*8+16+6*N+160] = i*bit + W;
+        circle_vertices[i*8+17+6*N+160] = (origin_y + radius + H)*4/3;
+        circle_vertices[i*8+18+6*N+160] = 0;
+        circle_vertices[i*8+19+6*N+160] = scale_factor;
+        circle_vertices[i*8+20+6*N+160] = i*bit + texture_W;
+        circle_vertices[i*8+21+6*N+160] = (0.5f + texture_radius + texture_H)*4/3;
+        circle_vertices[i*8+22+6*N+160] = 0;
+        circle_vertices[i*8+23+6*N+160] = scale_factor;
+    }
+    circle_vertices[8*N+16+320] = origin_x - W;
+    circle_vertices[8*N+17+320] = (origin_y + radius + H)*4/3;
+    circle_vertices[8*N+18+320] = 0;
+    circle_vertices[8*N+19+320] = scale_factor;
+    circle_vertices[8*N+20+320] = 0.5f - texture_W;
+    circle_vertices[8*N+21+320] = (0.5f + texture_radius + texture_H)*4/3;
+    circle_vertices[8*N+22+320] = 0;
+    circle_vertices[8*N+23+320] = scale_factor;
 
     for (int i=0; i<(N+3); i++) {
         circle_indices[i] = i;
