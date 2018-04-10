@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>fullscreen.jpg</file>
+        <file>fullscreen.png</file>
+    </qresource>
+</RCC>
